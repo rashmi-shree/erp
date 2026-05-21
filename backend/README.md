@@ -87,7 +87,9 @@ To verify that the table has been successfully created:
 Populate the table with initial dummy data:
 ```sql
 INSERT INTO employees(name, department)
-VALUES ('Rashmi', 'Engineering');
+VALUES ('John Doe', 'Engineering'),
+   ('Jane Smith', 'Marketing'),
+   ('Mike Johnson', 'Sales');
 ```
 **Expected Output:**
 ```text
