@@ -2,82 +2,122 @@
 
 This is the backend service for the ERP application, built with Node.js, Express, and PostgreSQL.
 
-## Prerequisites
+> [!IMPORTANT]
+> This application **must** be run using Docker. Manual or local local machine installation is not supported.
+
+## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
-- [Docker](https://www.docker.com/products/docker-desktop) (Highly Recommended)
-- [Node.js](https://nodejs.org/) (If running without Docker)
-- [PostgreSQL](https://www.postgresql.org/download/) (If running without Docker)
+- [Docker & Docker Desktop](https://www.docker.com/products/docker-desktop)
 
 ---
 
 ## 🚀 Getting Started with Docker
 
-The easiest way to get the backend running is using Docker Compose.
+The only supported way to run the backend is via Docker Compose.
 
-1. **Start the containers:**
-   From the `backend` directory, run:
-   ```bash
-   docker-compose up --build
-   ```
+### 1. Start the Containers
+From the `backend` directory, run:
+```bash
+docker-compose up --build
+```
 
-2. **Access the API:**
-   - Backend API: `http://localhost:5001`
-   - Health Check: `http://localhost:5001/health`
-
-*Note: Docker will automatically set up the database and the application for you.*
+### 2. Access the API
+- **Backend API:** `http://localhost:5001`
+- **Health Check:** `http://localhost:5001/health`
 
 ---
 
-## 🛠️ Manual Setup (Without Docker)
+## 💾 Initializing the Database (Inside Docker)
 
-If you don't have Docker installed, follow these steps:
+> [!WARNING]
+> If this is your first time running the containers, **you must insert data into the PostgreSQL container before trying the API endpoints.**
 
-### 1. Database Setup
-1. Open your PostgreSQL terminal (psql) or a GUI tool like pgAdmin.
-2. Create the database:
-   ```sql
-   CREATE DATABASE erp_db;
-   ```
-3. Connect to the database and create the `employees` table:
-   ```sql
-   CREATE TABLE employees (
-       id SERIAL PRIMARY KEY,
-       name VARCHAR(100) NOT NULL,
-       department VARCHAR(100) NOT NULL
-   );
-   ```
-4. Insert some initial records:
-   ```sql
-   INSERT INTO employees (name, department) VALUES 
-   ('John Doe', 'Engineering'),
-   ('Jane Smith', 'Marketing'),
-   ('Mike Johnson', 'Sales');
-   ```
+Follow these steps exactly to initialize your database inside the Docker container:
 
-### 2. Environment Configuration
-Create a `.env` file in the `backend` directory and add your database credentials:
-```env
-PORT=5000
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=your_postgres_username
-DB_PASSWORD=your_postgres_password
-DB_NAME=erp_db
-```
-
-### 3. Install Dependencies & Run
+### Step 1: Access the PostgreSQL Shell
+Open a new terminal window on your machine and execute this command to enter the running Postgres container:
 ```bash
-npm install
-npm run dev
+docker exec -it erp-postgres psql -U postgres
 ```
-The server will start on `http://localhost:5000`.
+
+### Step 2: Connect to your database
+*The database defined in your `docker-compose.yml` is `erp_db`.*
+
+If your database is named **erp_db**:
+```sql
+\c erp_db
+```
+
+If your database is named **erp**:
+```sql
+\c erp
+```
+
+You should see this confirmation message:
+```text
+You are now connected to database "erp_db" (or "erp")
+```
+
+### Step 3: Create the Employees Table
+Run the following SQL statement in the prompt to create the `employees` schema:
+```sql
+CREATE TABLE employees (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    department VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+To verify that the table has been successfully created:
+```sql
+\dt
+```
+**Expected Output:**
+```text
+          List of relations
+ Schema |   Name    | Type  |  Owner   
+--------+-----------+-------+----------
+ public | employees | table | postgres
+(1 row)
+```
+
+### Step 4: Insert Dummy Data
+Populate the table with initial dummy data:
+```sql
+INSERT INTO employees(name, department)
+VALUES ('Rashmi', 'Engineering');
+```
+**Expected Output:**
+```text
+INSERT 0 1
+```
+
+### Step 5: Verify the Data
+Retrieve the row(s) to verify successful insertion:
+```sql
+SELECT * FROM employees;
+```
+**Expected Output:**
+```text
+ id |  name   | department  |         created_at         
+----+---------+-------------+----------------------------
+  1 | Rashmi  | Engineering | 2026-...
+(1 row)
+```
+
+### Step 6: Exit PostgreSQL Prompt
+Once verified, exit the `psql` command line tool:
+```sql
+\q
+```
 
 ---
 
 ## 📑 API Endpoints
 
-Use these endpoints to build your frontend:
+Use these endpoints to build and test your frontend:
 
 ### Employees
 | Method | Endpoint | Description |
@@ -100,6 +140,5 @@ Use these endpoints to build your frontend:
 
 ## 💡 Building the Frontend
 When connecting your frontend to this backend:
-- If using Docker, the API URL is `http://localhost:5001`.
-- If running manually, the API URL is `http://localhost:5000`.
+- The API URL is **always** `http://localhost:5001`.
 - Use `fetch` or `axios` to make requests to the `/employees` endpoint to display and manage employee data.
