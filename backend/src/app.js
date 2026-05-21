@@ -2,10 +2,23 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const promBundle = require("express-prom-bundle");
 
 const employeeRoutes = require("./routes/employee.routes");
 
 const app = express();
+
+// Initialize Prometheus metrics middleware
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+  includeStatusCode: true,
+  promClient: {
+    collectDefaultMetrics: {}
+  }
+});
+
+app.use(metricsMiddleware);
 
 app.use(cors());
 app.use(helmet());
