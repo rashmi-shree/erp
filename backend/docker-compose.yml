@@ -44,19 +44,19 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  prometheus:
-    image: prom/prometheus
+  # prometheus:
+  #   image: prom/prometheus
 
-    container_name: erp-prometheus
+  #   container_name: erp-prometheus
 
-    restart: unless-stopped
+  #   restart: unless-stopped
 
-    ports:
-      - "9090:9090"
+  #   ports:
+  #     - "9090:9090"
 
-    volumes:
-      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+  #   volumes:
+  #     - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus_data:/prometheus
 
   grafana:
     image: grafana/grafana
@@ -69,7 +69,7 @@ services:
       - "3000:3000"
 
     depends_on:
-      - prometheus
+      # - prometheus
       - loki
 
     volumes:
@@ -113,5 +113,5 @@ services:
 volumes:
   postgres_data:
   grafana_data:
-  prometheus_data:
+  # prometheus_data:
   loki_data:
